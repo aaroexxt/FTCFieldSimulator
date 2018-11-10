@@ -15,6 +15,8 @@ const path = require('path');
 
 //SETTINGS
 const serverPort = 80;
+const websocketPort = 8080;
+const assetsDirectory = "static";
 const frontendFile = "main.html";
 
 //CONTROLLERS
@@ -32,22 +34,26 @@ const controllerZeros = {
 	a: {
 		rightStick: {
 			x: 124,
-			y: 124
+			y: 124,
+			max: 256
 		},
 		leftStick: {
 			x: 130,
 			y: 128
+			max: 256 //GUESSED
 		},
 		deadZone: 25
 	},
 	b: {
 		rightStick: {
 			x: 124,
-			y: 124
+			y: 124,
+			max: 256
 		},
 		leftStick: {
 			x: 130,
-			y: 128
+			y: 128,
+			max: 256
 		},
 		deadZone: 25
 	}
@@ -96,6 +102,11 @@ var currentControllerPositions = {
 	}
 }
 
+var currentRobotPosition = {
+	x: 0,
+	y: 0
+}
+
 const normalizeControls = function(options) {
 	let xDelta = options.x-options.stick.x;
 	if (Math.abs(xDelta) < options.deadZone) {
@@ -108,6 +119,10 @@ const normalizeControls = function(options) {
 		yDelta = 0;
 	}
 	options.position.y = yDelta;
+}
+
+const updateRobotPosition = function(powerLeft, powerRight) {
+	robot.
 }
 
 //CONNECT CONTROLLER
@@ -225,6 +240,7 @@ if (controllerBEnabled) {
 
 console.log("init express");
 const app = express();
+app.use("/static",express.static(path.join(__dirname, assetsDirectory))); //config static
 
 console.log("routes init");
 app.get('/', (req, res) => {
@@ -239,4 +255,15 @@ app.get('/', (req, res) => {
 })
 
 console.log("server init");
-app.listen(serverPort, () => console.log(`server OK, port=${serverPort}!`))
+app.listen(serverPort, () => console.log(`server OK, port=${serverPort}!`));
+
+console.log("websocket bois init");
+
+const WebSocket = require('ws')
+const wss = new WebSocket.Server({ port: websocketPort });
+wss.on('connection', ws => {
+  ws.on('message', message => {
+    console.log(`Received message => ${message}`)
+  })
+  ws.send(JSON.stringify({"status": "OK"}));
+})
