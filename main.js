@@ -39,7 +39,7 @@ const controllerZeros = {
 		},
 		leftStick: {
 			x: 130,
-			y: 128
+			y: 128,
 			max: 256 //GUESSED
 		},
 		deadZone: 25
@@ -102,10 +102,17 @@ var currentControllerPositions = {
 	}
 }
 
-var currentRobotPosition = {
-	x: 0,
-	y: 0
+var currentRobot = {
+	x: 100,
+	y: 100,
+	angle: 0,
+	vel: 0,
+	accel: 0,
+	width: 10,
+	height: 10
 }
+
+var robotEndpoints = [[0,0], [10,0], [10,10], [0,10]];
 
 const normalizeControls = function(options) {
 	let xDelta = options.x-options.stick.x;
@@ -119,10 +126,29 @@ const normalizeControls = function(options) {
 		yDelta = 0;
 	}
 	options.position.y = yDelta;
+
+	updateRobotPosition(options.position.x, options.position.y, options.position.x, options.position.y);
+	findRobotEndpoints();
 }
 
-const updateRobotPosition = function(powerLeft, powerRight) {
-	robot.
+const updateRobotPosition = function(powerLeftX, powerLeftY, powerRightX, powerRightY) {
+	//let x = currentRobotPosition.x;
+	//let y = currentRobotPosition.y;
+	//let a = currentRobotPosition.angle;
+
+	//let dP = powerLeft-powerRight;
+	currentRobot.x += powerLeftX*0.05;
+	currentRobot.y += powerLeftY*0.05;
+
+}
+
+const findRobotEndpoints = function() {
+	let leftTop = [(currentRobot.x-(0.5*currentRobot.width)), (currentRobot.y-(0.5*currentRobot.height))];
+	let rightTop = [(currentRobot.x+(0.5*currentRobot.width)), (currentRobot.y-(0.5*currentRobot.height))];
+	let leftBottom = [(currentRobot.x-(0.5*currentRobot.width)), (currentRobot.y+(0.5*currentRobot.height))];
+	let rightBottom = [(currentRobot.x+(0.5*currentRobot.width)), (currentRobot.y+(0.5*currentRobot.height))];
+	robotEndpoints = [leftTop, rightTop, rightBottom, leftBottom, leftTop];
+	//return ;
 }
 
 //CONNECT CONTROLLER
@@ -265,5 +291,9 @@ wss.on('connection', ws => {
   ws.on('message', message => {
     console.log(`Received message => ${message}`)
   })
-  ws.send(JSON.stringify({"status": "OK"}));
+  //ws.send(JSON.stringify({"status": "OK"}));
+  ws.send(JSON.stringify({"status": "OK", "field": []}));
+  setInterval( () => {
+  	ws.send(JSON.stringify({"status": "OK", "robot": currentRobot, "endpoints": robotEndpoints}));
+  },100);
 })

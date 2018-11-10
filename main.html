@@ -5,12 +5,15 @@
 		<meta charset="utf-8">
     	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link href='https://fonts.googleapis.com/css?family=SF Pro Display' rel='stylesheet'>
-		<script src="static/websock.js"></script>
+		<script async defer src="static/websock.js"></script>
 	</head>
 	<body>
 		<center>
 			<h2>Virtual FTC Field</h2>
 			<p>this was thrown together today</p>
+			<p id="wait">Waiting for field data from server...</p>
 		</center>
+		<canvas id="field" width="500px" height="500px">
+		</canvas>
 	</body>
 </html>
